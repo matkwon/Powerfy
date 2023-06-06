@@ -122,12 +122,19 @@
           margin: 0;
         }
 
-        img, h2 {
+        img, h2, #security-factor-text {
           margin: 0;
         }
 
         img, .h2 {
           margin-top: 3%;
+        }
+
+        #security-factor {
+          background-color: rgb(215, 215, 215);
+          font-size: 4rem;
+          margin: 0;
+          font-weight: bolder;
         }
     </style>
   </head>
@@ -138,7 +145,11 @@
       <p id="close-warning"></p>
       <p id="warning"></p>
     </ul>
-    <h2 id="cookie-title">Cookies in this tab:</h2>
+    <h2>Current domain:</h2>
+    <p id="current-domain"></p>
+    <p id="security-factor-text">Security factor:</p>
+    <p id="security-factor"></p>
+    <h2 class="h2" id="cookie-title">Cookies in this tab:</h2>
     <div class="cookies-div">
       <p id="total-cookies">Total:</p>
       <p id="session-cookies">Session:</p>

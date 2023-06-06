@@ -5,6 +5,7 @@
 var tpd = [], sd = [], ts = [];
 var popup_open = false
 var hj = 0;
+var coefficients = new Map();
 
 browser.webRequest.onBeforeRequest.addListener((details) => {
     const sourceUrl = details.originUrl || details.initiator;
@@ -50,7 +51,7 @@ chrome.runtime.onMessage.addListener(
 
 // ############################################################
 
-// Detecção de possíveis hijackings e hooks
+// Detection of possible hijackings and hooks
 
 browser.webRequest.onHeadersReceived.addListener((details) => {
     const { responseHeaders } = details;

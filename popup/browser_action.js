@@ -2,7 +2,7 @@
 
 // ############################################################
 
-var log_file = "", log_count = 0, cookies_count = 0, session_cookies = 0;
+var log_file = "", log_count = 0, cookies_count = 0, session_cookies = 0, privacy_policy = false;
 
 var textFile = null, makeTextFile = function (text) {
     var data = new Blob([text], {type: 'text/plain'});
@@ -13,30 +13,13 @@ var textFile = null, makeTextFile = function (text) {
     return textFile;
 };
 
-browser.tabs.query({currentWindow: true, active: true}).then((tabs) => {
-    const tab_url = tabs.pop().url;
-    if (tab_url == null) {
-        document.getElementById("cookie-title").textContent = "All cookies:";
-    }
-    browser.cookies.getAll({url: tab_url}).then((cookies) => {
-        cookies_count = cookies.length;
-        for (let cookie of cookies) {
-            if (cookie.session) {
-                session_cookies++;
-            }
-        }
-        document.getElementById("total-cookies").textContent = `Total: ${cookies_count}`;
-        document.getElementById("session-cookies").textContent = `Session: ${session_cookies}`;
-        document.getElementById("persistent-cookies").textContent = `Persistent: ${cookies_count-session_cookies}`;
-    });
-});
-
 const cookieSync = {
     _cookieMap: new Map(),
     init: () => {cookieSync.addListener();},
     addListener: () => {
         document.getElementById("cookie-sync").addEventListener("click", (e) => {
             browser.tabs.query({}).then((tabs) => {
+                tabs.push(null);
                 for (const tab of tabs) {
                     browser.cookies.getAll({url: tab.url}).then((cookies) => {
                         for (let cookie of cookies) {
@@ -240,10 +223,13 @@ function checkPrivacyPolicy() {
     
         if (
             text.includes("privacy policy") ||
+            text.includes("privacy") ||
             text.includes("política de privacidade") ||
+            text.includes("privacidade") ||
             text.includes("terms of service") ||
             text.includes("termos de serviço")
         ) {
+            privacy_policy = true;
             document.getElementById("privacy-policy").textContent = "A privacy policy was found on the current window.";
             return;
         }
@@ -286,3 +272,28 @@ hijackWarning.init();
 backgroundListener.init();
 checkPrivacyPolicy();
 checkWebStorage();
+
+browser.tabs.query({currentWindow: true, active: true}).then((tabs) => {
+    const tab_url = tabs.pop().url;
+    if (tab_url == null) {
+        document.getElementById("cookie-title").textContent = "All cookies:";
+    }
+    browser.cookies.getAll({url: tab_url}).then((cookies) => {
+        cookies_count = cookies.length;
+        for (let cookie of cookies) {
+            if (cookie.session) {
+                session_cookies++;
+            }
+        }
+        let persistent_cookies = cookies_count-session_cookies;
+        if (tab_url != null) {
+            document.getElementById("current-domain").textContent = tab_url;
+            document.getElementById("security-factor").textContent = cookies_count > 0 ?
+            (`${Math.round(((privacy_policy?10:9) - cookies_count/10 - 2*persistent_cookies/cookies_count)*100)/100}`) :
+            (`${privacy_policy?10:9}`);
+        }
+        document.getElementById("total-cookies").textContent = `Total: ${cookies_count}`;
+        document.getElementById("session-cookies").textContent = `Session: ${session_cookies}`;
+        document.getElementById("persistent-cookies").textContent = `Persistent: ${persistent_cookies}`;
+    });
+});
