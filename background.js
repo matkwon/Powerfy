@@ -3,21 +3,6 @@
 // ############################################################
 
 var tpd = [], sd = [], ts = [];
-if (localStorage.getItem("powerfy_tpd") === null) {
-    localStorage.setItem("powerfy_tpd", JSON.stringify(tpd));
-} else {
-    tpd = JSON.parse(localStorage.getItem("powerfy_tpd"));
-}
-if (localStorage.getItem("powerfy_sd") === null) {
-    localStorage.setItem("powerfy_sd", JSON.stringify(sd));
-} else {
-    sd = JSON.parse(localStorage.getItem("powerfy_sd"));
-}
-if (localStorage.getItem("powerfy_ts") === null) {
-    localStorage.setItem("powerfy_ts", JSON.stringify(ts));
-} else {
-    ts = JSON.parse(localStorage.getItem("powerfy_ts"));
-}
 var popup_open = false
 var hj = 0;
 
@@ -30,14 +15,11 @@ browser.webRequest.onBeforeRequest.addListener((details) => {
         tpd.push(requestDomain);
         sd.push(sourceDomain);
         ts.push(timestamp);
-        if (tpd.length > 5000) {
+        if (tpd.length > 10000) {
             tpd.shift();
             sd.shift();
             ts.shift();
         }
-        localStorage.setItem("powerfy_tpd", JSON.stringify(tpd));
-        localStorage.setItem("powerfy_sd", JSON.stringify(sd));
-        localStorage.setItem("powerfy_ts", JSON.stringify(ts));
         if (popup_open) {
             chrome.runtime.sendMessage({msg: "SingleDomain", data: {source: sourceDomain, request: requestDomain, time: timestamp}});
         }
@@ -57,9 +39,6 @@ chrome.runtime.onMessage.addListener(
             tpd = [];
             sd = [];
             ts = [];
-            localStorage.setItem("powerfy_tpd", JSON.stringify(tpd));
-            localStorage.setItem("powerfy_sd", JSON.stringify(sd));
-            localStorage.setItem("powerfy_ts", JSON.stringify(ts));
         } else if (request.msg === "OpenedPopup") {
             popup_open = true;
             chrome.runtime.sendMessage({msg: "TPD", data: {source: sd, request: tpd, time: ts, hijack: hj}});

@@ -13,10 +13,7 @@ var textFile = null, makeTextFile = function (text) {
     return textFile;
 };
 
-function getActiveTab() {
-    return browser.tabs.query({currentWindow: true, active: true});
-}
-getActiveTab().then((tabs) => {
+browser.tabs.query({currentWindow: true, active: true}).then((tabs) => {
     const tab_url = tabs.pop().url;
     if (tab_url == null) {
         document.getElementById("cookie-title").textContent = "All cookies:";
@@ -28,40 +25,36 @@ getActiveTab().then((tabs) => {
                 session_cookies++;
             }
         }
-        document.getElementById("total-cookies").textContent = "Total: ".concat(cookies_count.toString());
-        document.getElementById("session-cookies").textContent = "Session: ".concat(session_cookies.toString());
-        document.getElementById("persistent-cookies").textContent = "Persistent: ".concat((cookies_count-session_cookies).toString());
+        document.getElementById("total-cookies").textContent = `Total: ${cookies_count}`;
+        document.getElementById("session-cookies").textContent = `Session: ${session_cookies}`;
+        document.getElementById("persistent-cookies").textContent = `Persistent: ${cookies_count-session_cookies}`;
     });
 });
 
-function getCurrentWindowTabs() {
-    return browser.tabs.query({});
-}
 const cookieSync = {
     _cookieMap: new Map(),
     init: () => {cookieSync.addListener();},
     addListener: () => {
         document.getElementById("cookie-sync").addEventListener("click", (e) => {
-            getCurrentWindowTabs().then((tabs) => {
+            browser.tabs.query({}).then((tabs) => {
                 for (const tab of tabs) {
                     browser.cookies.getAll({url: tab.url}).then((cookies) => {
                         for (let cookie of cookies) {
-                            if (cookieSync._cookieMap.has(cookie.name.concat("=").concat(cookie.value))) {
-                                if (!cookieSync._cookieMap.get(cookie.name.concat("=").concat(cookie.value)).has(cookie.domain)) {
-                                    cookieSync._cookieMap.get(cookie.name.concat("=").concat(cookie.value)).set(cookie.domain, 0);
+                            if (cookieSync._cookieMap.has(`${cookie.name}=${cookie.value}`)) {
+                                if (!cookieSync._cookieMap.get(`${cookie.name}=${cookie.value}`).has(cookie.domain)) {
+                                    cookieSync._cookieMap.get(`${cookie.name}=${cookie.value}`).set(cookie.domain, 0);
                                 }
                             } else {
-                                cookieSync._cookieMap.set(cookie.name.concat("=").concat(cookie.value), new Map([[cookie.domain, 0]]));
+                                cookieSync._cookieMap.set(`${cookie.name}=${cookie.value}`, new Map([[cookie.domain, 0]]));
                             }
                         }
                         if (tab === tabs.pop()) {
-                            var sync_list = "";
                             for (let [name_value, value_map] of cookieSync._cookieMap) {
                                 let [name, value] = name_value.split('=').map(s => s.trim());
                                 if ((value_map.size > 1) && (name[0] != "_")) {
-                                    sync_list = sync_list.concat(`[ Cookie: ( ${name} ), value: ( ${value} ), synced between: ( ${[...value_map.keys()].join(", ")} ) ]\r\n`);
+                                    var sync_item = `[ Cookie: ( ${name} ), value: ( ${value} ), synced between: ( ${[...value_map.keys()].join(", ")} ) ]\r\n`;
                                     var sync = document.createElement('p');
-                                    sync.textContent = sync_list
+                                    sync.textContent = sync_item;
                                     document.getElementById("sync-list").appendChild(sync);
                                 }
                             }
@@ -72,7 +65,6 @@ const cookieSync = {
         });
     }
 }
-cookieSync.init();
 
 const powerBrowserAction = {
 
@@ -92,9 +84,9 @@ const powerBrowserAction = {
                     log_file = "";
                     log_count = 0;
                     for (var i = 0; i < 5; i++) {
-                        document.getElementById("ts".concat(i)).textContent = "-";
-                        document.getElementById("sd".concat(i)).textContent = "---";
-                        document.getElementById("tpd".concat(i)).textContent = "---";
+                        document.getElementById(`ts${i}`).textContent = "-";
+                        document.getElementById(`sd${i}`).textContent = "---";
+                        document.getElementById(`tpd${i}`).textContent = "---";
                     }
                     document.getElementById("log-length").textContent = "Log length: 0";
                     break;
@@ -109,10 +101,7 @@ const powerBrowserAction = {
                         document.body.removeChild(link);
                     });
                     break;
-                    
             }
-            // window.setTimeout(() => { window.close(); }, 2000 );
-  
         });
     }
 }
@@ -135,12 +124,7 @@ const hijackWarning = {
                     e.target.textContent = "";
                     chrome.runtime.sendMessage({msg: "CloseWarning"});
                     break;
-                default:
-                    console.log(e.target.id);
-                    console.warn(e.target.parentNode.outerHTML);
             }
-            // window.setTimeout(() => { window.close(); }, 2000 );
-  
         });
     }
 }
@@ -164,22 +148,19 @@ const backgroundListener = {
                     const sd = request.data.source;
                     const ts = request.data.time;
                     for (var i = tpd.length; i > 0; i--) {
-                        log_file = log_file
-                            .concat(ts[i - 1]).concat("  ||  ")
-                            .concat(sd[i - 1]).concat("  -->  ")
-                            .concat(tpd[i - 1]).concat("\n");
+                        log_file = `${log_file}${ts[i - 1]}  ||  ${sd[i - 1]}  -->  ${tpd[i - 1]}"\n"`;
                     }
                     log_count = tpd.length;
-                    document.getElementById("log-length").textContent = "Log length: ".concat(log_count.toString()).concat(log_count===5000?" (max)":"");
+                    document.getElementById("log-length").textContent = `Log length: ${log_count}${log_count===5000?" (max)":""}`;
                     for (var i = 5; i > 0; i--) {
                         if (tpd.length <= 5 - i) {
                             break;
                         }
                         const date = new Date(Date.parse(ts[ts.length - i]));
-                        var date_display = (date.getDate() / 10 >= 1 ? "" : "0") + date.getDate() + "/" + (date.getMonth() / 9 >= 1 ? "" : "0") + (date.getMonth() + 1) + "/" + date.getFullYear() + "   " + ts[ts.length - i].slice(16, -8);
-                        document.getElementById("ts".concat(5 - i)).textContent = date_display;
-                        document.getElementById("sd".concat(5 - i)).textContent = sd[sd.length - i];
-                        document.getElementById("tpd".concat(5 - i)).textContent = tpd[tpd.length - i];
+                        var date_display = (date.getDate()/10>=1 ? "" : "0") + date.getDate() + "/" + (date.getMonth()/9>=1 ? "" : "0") + (date.getMonth()+1) + "/" + date.getFullYear() + "   " + ts[ts.length-i].slice(16, -8);
+                        document.getElementById(`ts${5 - i}`).textContent = date_display;
+                        document.getElementById(`sd${5 - i}`).textContent = sd[sd.length - i];
+                        document.getElementById(`tpd${5 - i}`).textContent = tpd[tpd.length - i];
                         ts_display.unshift(date_display);
                         sd_display.unshift(sd[sd.length - i]);
                         tpd_display.unshift(tpd[tpd.length - i]);
@@ -203,18 +184,15 @@ const backgroundListener = {
                     var tpd = request.data.request;
                     var sd = request.data.source;
                     var ts = request.data.time;
-                    log_file = ts.concat("  ||  ")
-                        .concat(sd).concat("  -->  ")
-                        .concat(tpd).concat("\n")
-                        .concat(log_file);
-                    if (log_count === 5000) {
+                    log_file = `${ts}  ||  ${sd}  -->  ${tpd}\n${log_file}`;
+                    if (log_count === 10000) {
                         var lines = log_file.split(/\r\n|\r|\n/);
                         lines.pop();
                         log_file = lines.join("\r\n");
                     } else {
                         log_count++;
                     }
-                    document.getElementById("log-length").textContent = "Log length: ".concat(log_count.toString()).concat(log_count===5000?" (max)":"");
+                    document.getElementById("log-length").textContent = `Log length: ${log_count}${log_count===5000?" (max)":""}`;
                     const date = new Date(Date.parse(ts));
                     var date_display = (date.getDate() / 10 >= 1 ? "" : "0") + date.getDate() + "/" + (date.getMonth() / 9 >= 1 ? "" : "0") + (date.getMonth() + 1) + "/" + date.getFullYear() + "   " + ts.slice(16, -8);
                     ts_display.unshift(date_display);
@@ -226,9 +204,9 @@ const backgroundListener = {
                         tpd_display.pop();
                     }
                     for (var i = 0; i < ts_display.length; i++) {
-                        document.getElementById("ts".concat(i)).textContent = ts_display[i];
-                        document.getElementById("sd".concat(i)).textContent = sd_display[i];
-                        document.getElementById("tpd".concat(i)).textContent = tpd_display[i];
+                        document.getElementById(`ts${i}`).textContent = ts_display[i];
+                        document.getElementById(`sd${i}`).textContent = sd_display[i];
+                        document.getElementById(`tpd${i}`).textContent = tpd_display[i];
                     }
                 } else if (request.msg === "Hijack") {
                     if (request.data == "BSM") {
@@ -266,16 +244,45 @@ function checkPrivacyPolicy() {
             text.includes("terms of service") ||
             text.includes("termos de serviço")
         ) {
-            console.log("Privacy policy found on current window");
+            document.getElementById("privacy-policy").textContent = "A privacy policy was found on the current window.";
             return;
         }
     }
-  
-    console.log("The current window does not display a privacy policy");
+    
+    document.getElementById("privacy-policy").textContent = "The current window does not seem to display any privacy policy.";
 }
 
-checkPrivacyPolicy();
+function checkWebStorage() {
+    const ls = localStorage;
+    const ss = sessionStorage;
+    
+    switch (ls.length) {
+        case 0:
+            document.getElementById("local-storage").textContent = `There are currently no variables in the local web storage.`;
+            break;
+        case 1:
+            document.getElementById("local-storage").textContent = `There is currently 1 variable in the local web storage.`;
+            break;
+        default:
+            document.getElementById("local-storage").textContent = `There are currently ${ls.length} variables in the local web storage.`;
+            break;
+    }
+    switch (ss.length) {
+        case 0:
+            document.getElementById("session-storage").textContent = `There are currently no variables in the web session storage.`;
+            break;
+        case 1:
+            document.getElementById("session-storage").textContent = `There is currently 1 variable in the web session storage.`;
+            break;
+        default:
+            document.getElementById("session-storage").textContent = `There are currently ${ss.length} variables in the web session storage.`;
+            break;
+    }
+}
 
+cookieSync.init();
 powerBrowserAction.init();
 hijackWarning.init();
 backgroundListener.init();
+checkPrivacyPolicy();
+checkWebStorage();

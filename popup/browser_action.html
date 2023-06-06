@@ -82,6 +82,7 @@
         #warning-div {
           display: flex;
           flex-direction: row;
+          margin: 0%;
         }
 
         #warning {
@@ -115,10 +116,24 @@
         #sync-list {
           width: 90%;
         }
+
+        #local-storage, #session-storage, #privacy-policy {
+          background-color: rgb(247, 255, 244);
+          margin: 0;
+        }
+
+        img, h2 {
+          margin: 0;
+        }
+
+        img, .h2 {
+          margin-top: 3%;
+        }
     </style>
   </head>
 
   <body>
+    <img src="../images/logo.png" width="300">
     <ul id="warning-div">
       <p id="close-warning"></p>
       <p id="warning"></p>
@@ -132,7 +147,12 @@
     <p class="button" id="cookie-sync">Check for cookie syncing with all cookies</p>
     <div id="sync-list">
     </div>
-    <h2>Latest accesses to third party domains:</h2>
+    <h2 class="h2">Web Storage:</h2>
+    <p id="local-storage"></p>
+    <p id="session-storage"></p>
+    <h2 class="h2">Privacy policy:</h2>
+    <p id="privacy-policy"></p>
+    <h2 class="h2">Latest accesses to third party domains:</h2>
     <ul id="menu-list">
       <p id="log-length">Log length: 0</p>
       <p class="button" id="download">Download Full Log</p>
