@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Powerfy</title>
+    <style>
+        body {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          height: 700px;
+          width: 600px;
+          margin: 0;
+        }
+
+        ul {
+          width: 98%;
+        }
+
+        #menu-list {
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          margin: 0;
+          padding: 0;
+        }
+
+        .list {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: space-evenly;
+          margin: 0;
+          padding: 0;
+        }
+
+        .button {
+          display: flex;
+          border-radius: 10%;
+          height: 1.5rem;
+          width: 30%;
+          margin: 0% 3%;
+          padding: 3% 0%;
+          text-align: center;
+          justify-content: center;
+          background-color: #E5F2F2;
+          cursor: pointer;
+          border-style: solid;
+          border-color: #7c7c7c;
+        }
+        
+        .button:hover {
+          background-color: #CFF2F2;
+        }
+
+        .logline {
+          display: flex;
+          flex-direction: row;
+          text-align: center;
+          justify-content: space-between;
+          width: 90%;
+          background-color: rgb(247, 255, 244);
+        }
+
+        .sd, .tpd {
+          display: flex;
+          width: 42%;
+          justify-content: center;
+          align-items: center;
+          word-break: break-all;
+        }
+
+        .ts {
+          display: flex;
+          width: 16%;
+          word-break: break-all;
+          justify-content: center;
+          align-items: center;
+        }
+
+        #warning-div {
+          display: flex;
+          flex-direction: row;
+        }
+
+        #warning {
+          background-color: beige;
+        }
+
+        #close-warning {
+          cursor: pointer;
+          color: white;
+          background-color: red;
+          width: 2%;
+        }
+
+        .log-title, #log-title {
+          background-color: white;
+          font-weight: bold;
+          margin-bottom: 0;
+        }
+
+        .cookies-div {
+          width: 70%;
+          height: 50px;
+          background-color: rgb(247, 255, 244);
+          margin: 0;
+          margin-bottom: 3%;
+          display: flex;
+          flex-direction: row;
+          justify-content: space-around;
+        }
+
+        #sync-list {
+          width: 90%;
+        }
+    </style>
+  </head>
+
+  <body>
+    <ul id="warning-div">
+      <p id="close-warning"></p>
+      <p id="warning"></p>
+    </ul>
+    <h2 id="cookie-title">Cookies in this tab:</h2>
+    <div class="cookies-div">
+      <p id="total-cookies">Total:</p>
+      <p id="session-cookies">Session:</p>
+      <p id="persistent-cookies">Persistent:</p>
+    </div>
+    <p class="button" id="cookie-sync">Check for cookie syncing with all cookies</p>
+    <div id="sync-list">
+    </div>
+    <h2>Latest accesses to third party domains:</h2>
+    <ul id="menu-list">
+      <p id="log-length">Log length: 0</p>
+      <p class="button" id="download">Download Full Log</p>
+      <p class="button" id="clear-domains">Clear Log</p>
+    </ul>
+    <ul class="list">
+      <div class="logline" id="log-title">
+        <p class="ts log-title">Timestamp</p>
+        <p class="sd log-title">Source Domain</p>
+        <p class="tpd log-title">Third Party Domain</p>
+      </div>
+      <div class="logline" id="log0">
+        <p class="ts" id="ts0">-</p>
+        <p class="sd" id="sd0">---</p>
+        <p class="tpd" id="tpd0">---</p>
+      </div>
+      <div class="logline" id="log1">
+        <p class="ts" id="ts1">-</p>
+        <p class="sd" id="sd1">---</p>
+        <p class="tpd" id="tpd1">---</p>
+      </div>
+      <div class="logline" id="log2">
+        <p class="ts" id="ts2">-</p>
+        <p class="sd" id="sd2">---</p>
+        <p class="tpd" id="tpd2">---</p>
+      </div>
+      <div class="logline" id="log3">
+        <p class="ts" id="ts3">-</p>
+        <p class="sd" id="sd3">---</p>
+        <p class="tpd" id="tpd3">---</p>
+      </div>
+      <div class="logline" id="log4">
+        <p class="ts" id="ts4">-</p>
+        <p class="sd" id="sd4">---</p>
+        <p class="tpd" id="tpd4">---</p>
+      </div>
+    </ul>
+
+    <script src="browser_action.js"></script>
+  </body>
+
+</html>
+
